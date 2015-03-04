@@ -1,7 +1,7 @@
 from distutils.core import setup
 import py2exe
 setup(
-        console=["C:\TDDOWNLOAD\WangWangExcavator\TrapForBB.py"],
+        console=["TrapForBB.py"],
         #zipfile="library.zip",
         options={
             "py2exe":{
