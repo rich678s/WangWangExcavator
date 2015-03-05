@@ -10,19 +10,19 @@ import logging
 
 # Define
 URLDICT = {
-    u"南宁市科技局": "http://www.nnst.gov.cn/",
-    u"南宁市工信委": "http://219.159.80.227/index.htm",
-    u"南宁市发改委": "http://fgw.nanning.gov.cn/",
-    u"南宁市农业局": "http://www.nnny.gov.cn/",
-    u"南宁市环保局": "http://www.nnhb.gov.cn/",
-    u"南宁市商务局": "http://sw.nanning.gov.cn/",
-    u"广西工信委": "http://www.gxgxw.gov.cn/",
-    u"广西科技厅": "http://www.gxst.gov.cn/",
-    u"广西发改委": "http://www.gxdrc.gov.cn/",
-    u"广西农业信息网": "http://www.gxny.gov.cn/",
-    u"广西商务厅": "http://www.gxswt.gov.cn/",
-    u"南宁市中小企业信息网": "http://www.smenn.gov.cn/",
-    u"广西中小企业信息网": "http://www.smegx.gov.cn/",
+    u"南宁市科技局": "http://www.nnst.gov.cn",
+    u"南宁市工信委": "http://219.159.80.227/info/infopen.htm",
+    u"南宁市发改委": "http://fgw.nanning.gov.cn",
+    u"南宁市农业局": "http://www.nnny.gov.cn",
+    u"南宁市环保局": "http://www.nnhb.gov.cn",
+    u"南宁市商务局": "http://sw.nanning.gov.cn",
+    u"广西工信委": "http://www.gxgxw.gov.cn",
+    u"广西科技厅": "http://www.gxst.gov.cn",
+    u"广西发改委": "http://www.gxdrc.gov.cn",
+    u"广西农业信息网": "http://www.gxny.gov.cn",
+    u"广西商务厅": "http://www.gxswt.gov.cn",
+    u"南宁市中小企业信息网": "http://www.smenn.gov.cn",
+    u"广西中小企业信息网": "http://www.smegx.gov.cn",
 }
 KEYWORD = [u'申报', u'项目', u'通知', u'验收', u'立项', u'资金', u'课题']
 AVOIDWORD = [u'通知公告', u'在线申报', u'招商项目', u'项目申报指南', u'项目申报',
@@ -51,7 +51,7 @@ def trapAllLinks(URLDICT):
             soup = bs(page_content)
             links_in_pages = soup.find_all('a')
             result_list[website] = links_in_pages
-            logger.debug("Dug %s, got %d links." % (website, len(result_list)))
+            logger.debug("Dug %s, got %d links." % (website, len(links_in_pages)))
         except:
             logger.debug("Dug %s Failed" % website)
             pass
@@ -70,8 +70,23 @@ def parseURL(website, a_soup):
 
 
 def sillyURLReformat(website, url):
+    """
+    The silly website doesn't use stand url format so need to assembling again
+    """
+    if website == u"南宁市工信委":
+        url = "http://219.159.80.227/" + url
     if url.startswith("./"):
-        url = URLDICT[website] + url.replace("./", "")
+        url = URLDICT[website] + url.replace("./", "/")
+    elif url.startswith("http://"):
+        pass
+    elif not url.startswith("/"):
+        url = URLDICT[website] + '/' + url
+    elif 'java' in url:
+        pass
+    elif URLDICT[website] in url:
+        pass
+    else:
+        url = URLDICT[website] + url
     return url
 
 
@@ -117,7 +132,7 @@ def exportToHTML(result_dict):
         website_line = "<tr><td><H2>" + website + "</H2></td></tr>"
         for title, link in title_and_link.items():
             link_line = "<tr><td>" + \
-                "<a href=\"%s\">%s</a>" % (link, title) + "</td></tr>"
+                "<a href=\"%s\" target=_blank>%s</a>" % (link, title) + "</td></tr>"
             website_line += link_line
         website_line += "<tr><td></td></tr>"
         table_container += website_line
